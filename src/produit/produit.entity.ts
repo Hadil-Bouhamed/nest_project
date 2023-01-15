@@ -1,13 +1,11 @@
 
-import {Entity, PrimaryGeneratedColumn, Column, BeforeInsert} from 'typeorm';
-import { IsEmail } from 'class-validator';
-import * as argon2 from 'argon2'; 
+import {Entity, PrimaryGeneratedColumn, Column} from 'typeorm';
 import { BaseEntity } from 'src/shared/base.entity';
 
 
 
 
-@Entity('user')
+@Entity('produit')
 export class produitEntity  extends BaseEntity{
 
   @PrimaryGeneratedColumn()

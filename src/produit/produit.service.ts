@@ -11,18 +11,18 @@ import { HttpStatus } from '@nestjs/common';
 import { ProduitRO } from './produit.interface';
 
 @Injectable()
-export class UserService {
+export class ProduitService {
   constructor(
     @InjectRepository(produitEntity)
-    private readonly userRepository: Repository<produitEntity>
+    private readonly produitRepository: Repository<produitEntity>
   ) {}
 
   async findAll(): Promise<produitEntity[]> {
-    return await this.userRepository.find();
+    return await this.produitRepository.find();
   }
 
-  async findOne({reference , marque}: CreateProduitDto): Promise<produitEntity> {
-     const produit = await this.userRepository.findOne( { where:
+  async findOne(reference: string, marque : string): Promise<produitEntity> {
+     const produit = await this.produitRepository.findOne( { where:
         { reference : reference , marque : marque}
     });
     if (!produit) {
@@ -64,7 +64,7 @@ export class UserService {
       throw new HttpException({message: 'Input data validation failed', _errors}, HttpStatus.BAD_REQUEST);
 
     } else {
-      const savedProduit= await this.userRepository.save(newProduit);
+      const savedProduit= await this.produitRepository.save(newProduit);
       return this.buildUserRO(savedProduit);
     }
 
@@ -72,21 +72,21 @@ export class UserService {
 
   async update(reference: string, marque : string , dto: UpdateProduitDto): Promise<produitEntity> {
     const { couleur , taille_monture , prix} = dto;
-    let toUpdate = await this.userRepository.findOne( { where: 
+    let toUpdate = await this.produitRepository.findOne( { where: 
         {reference : reference , marque : marque }
     });
     
     let updatedProduit = Object.assign(toUpdate, dto); 
-    return await this.userRepository.save(updatedProduit); 
+    return await this.produitRepository.save(updatedProduit); 
    
   }
 
   async delete(reference: string , marque : string): Promise<DeleteResult> {
-    return await this.userRepository.delete({ reference : reference , marque : marque});
+    return await this.produitRepository.delete({ reference : reference , marque : marque});
   }
 
    async findById(id: number): Promise<ProduitRO>{
-     const produit = await this.userRepository.findOne( { where:
+     const produit = await this.produitRepository.findOne( { where:
         { id: id}
     });
 
