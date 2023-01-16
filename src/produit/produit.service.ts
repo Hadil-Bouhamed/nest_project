@@ -4,7 +4,6 @@ import { Repository, DeleteResult, getRepository } from 'typeorm';
 import { produitEntity } from './produit.entity';
 import {CreateProduitDto, UpdateProduitDto} from './dto';
 const jwt = require('jsonwebtoken');
-import { SECRET } from '../config';
 import { validate } from 'class-validator';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common';
@@ -110,7 +109,7 @@ export class ProduitService {
       reference : produit.reference,
       marque : produit.marque,
       exp: exp.getTime() / 1000,
-    }, SECRET);
+    }, process.env.JWT_SECRET);
   };
 
   private buildUserRO(produit: produitEntity) {

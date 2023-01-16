@@ -4,18 +4,18 @@ import { IsNotEmpty } from 'class-validator';
 export class CreateProduitDto {
 
   @IsNotEmpty()
-  readonly reference: string;
+  reference: string;
 
   @IsNotEmpty()
-  readonly marque: string;
+  marque: string;
 
   @IsNotEmpty()
-  readonly couleur : string;
+  couleur : string;
 
   @IsNotEmpty()
-  readonly taille_monture: string;
+  taille_monture: string;
 
   @IsNotEmpty()
-  readonly prix: number;
+  prix: number;
 
 }

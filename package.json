@@ -1,5 +1,5 @@
 {
-  "name": "my_project",
+  "name": "nest_project",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -18,24 +18,30 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "start:dev:db": "./src/commands/startdb.sh",
+    "seed:cvs": "ts-node src/commands/cv.seeder.ts"
   },
   "dependencies": {
     "@nestjs/common": "^9.0.0",
+    "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
+    "@nestjs/jwt": "^10.0.1",
+    "@nestjs/mapped-types": "*",
+    "@nestjs/passport": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
-    "@nestjs/swagger": "^6.1.4",
     "@nestjs/typeorm": "^9.0.1",
+    "@ngneat/falso": "^6.2.0",
     "argon2": "^0.30.3",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.0",
-    "jsonwebtoken": "^9.0.0",
-    "mysql": "^2.18.1",
+    "class-validator": "^0.13.2",
+    "mysql2": "^2.3.3",
     "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
-    "typeorm": "^0.3.11"
+    "typeorm": "^0.3.10"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",
