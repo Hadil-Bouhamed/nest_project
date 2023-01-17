@@ -1,21 +1,22 @@
-import { Controller } from '@nestjs/common';
+import { Controller, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Get, Post, Body, Put, Delete, UsePipes } from '@nestjs/common';
 import { ProduitService } from './produit.service';
 import { ProduitRO } from './produit.interface'; 
 import { CreateProduitDto, UpdateProduitDto } from './dto'; 
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { ValidationPipe } from '../shared/validation.pipe';
-import { ApiBearerAuth, ApiTags} from '@nestjs/swagger';  
+import { ValidationPipe } from '../shared/validation.pipe';  
 import { produitEntity } from './produit.entity';
-
-
-@ApiBearerAuth()
-@ApiTags('product') 
+import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
+import { RoleInterceptor } from 'src/auth/decorator/getUser.decorator';
+import { RoleType } from 'src/shared/enums/roleType.enum';
+ 
 @Controller('product')
 export class ProduitController {
     constructor(private readonly produitService: ProduitService) {}
 
     @Get('getAll')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(new RoleInterceptor(RoleType.ADMIN,RoleType.SELLER))
     async findAll(): Promise<produitEntity[]> {
       return await this.produitService.findAll();
     }
