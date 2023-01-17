@@ -1,15 +1,10 @@
+import { PartialType, PickType } from '@nestjs/mapped-types';
 import { IsNotEmpty } from 'class-validator';
+import { CreateProduitDto } from './create-produit.dto';
 
 
-export class UpdateProduitDto {
-
-  @IsNotEmpty()
-  readonly couleur : string;
-
-  @IsNotEmpty()
-  readonly taille_monture: string;
-
-  @IsNotEmpty()
-  readonly prix: number;
-
-}
+export class UpdateProduitDto extends PickType(
+  CreateProduitDto,[
+    "reference" , "couleur" , "taille_monture"
+  ]){}
+ 

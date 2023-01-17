@@ -1,4 +1,7 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsEnum, IsNotEmpty } from 'class-validator';
+import { ColorsEnum } from '../enums/colors.enum';
+import { MarqueEnum } from '../enums/marque.enum';
+import { TailleEnum } from '../enums/taille.enum';
 
 
 export class CreateProduitDto {
@@ -7,15 +10,25 @@ export class CreateProduitDto {
   reference: string;
 
   @IsNotEmpty()
-  marque: string;
+  refProduct:string;
+  @IsNotEmpty()
+  @IsEnum(MarqueEnum)
+  marque: MarqueEnum;
 
   @IsNotEmpty()
-  couleur : string;
+  @IsEnum(ColorsEnum)
+  couleur : ColorsEnum;
 
   @IsNotEmpty()
-  taille_monture: string;
+  @IsEnum(TailleEnum)
+  taille_monture: TailleEnum;
 
   @IsNotEmpty()
   prix: number;
 
+  @IsNotEmpty()
+  prixReel:number;
+
+  @IsNotEmpty()
+  stock_amount:number;
 }

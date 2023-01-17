@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProduitController } from './produit.controller';
-import { produitEntity } from './produit.entity';
+import { produitEntity } from './entities/produit.entity';
 import { ProduitService } from './produit.service';
 
 @Module({

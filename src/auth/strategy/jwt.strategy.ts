@@ -6,7 +6,6 @@ import { Repository } from 'typeorm';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
@@ -19,7 +18,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       secretOrKey: process.env.JWT_SECRET,
     });
   }
-
   async validate(payload:any){
     const user= await this.userRepository.findOne({
       where:{email:payload.email}
@@ -28,7 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException()
     }
     delete user.password
-    return
+    return user
   }
 
 }

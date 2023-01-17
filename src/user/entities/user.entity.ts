@@ -3,9 +3,7 @@ import {Entity, PrimaryGeneratedColumn, Column, BeforeInsert, CreateDateColumn, 
 import * as argon2 from 'argon2'; 
 import { BaseEntity } from 'src/shared/base.entity';
 import { RoleType } from 'src/shared/enums/roleType.enum';
-
-
-
+import { produitEntity } from 'src/produit/entities/produit.entity';
 
 @Entity('user')
 export class UserEntity  extends BaseEntity{
@@ -22,10 +20,8 @@ export class UserEntity  extends BaseEntity{
   @Column()
   password: string;
 
-  @Column()
-  isActive: boolean;
-
   @Column({type:'enum',enum:RoleType,default:RoleType.CLIENT})
   role: RoleType;
-  
+  @OneToMany(()=>produitEntity,(prod)=>prod.owner)
+  products:produitEntity[]
 }
