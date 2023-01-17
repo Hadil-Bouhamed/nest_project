@@ -1,56 +1,78 @@
-import { Controller, UseGuards, UseInterceptors } from '@nestjs/common';
-import { Get, Post, Body, Put, Delete, UsePipes } from '@nestjs/common';
 import { ProduitService } from './produit.service';
-import { ProduitRO } from './produit.interface'; 
 import { CreateProduitDto, UpdateProduitDto } from './dto'; 
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { ValidationPipe } from '../shared/validation.pipe';  
-import { produitEntity } from './produit.entity';
+import { produitEntity } from './entities/produit.entity';
 import { JwtAuthGuard } from 'src/auth/guard/jwt.guard';
-import { RoleInterceptor } from 'src/auth/decorator/getUser.decorator';
+import { RoleInterceptor } from 'src/auth/interceptors/roles.interceptor';
 import { RoleType } from 'src/shared/enums/roleType.enum';
+import { UnauthorizedException,NotFoundException } from '@nestjs/common/exceptions';
+import { Controller, Get, Param,Query,Post,Body, UseGuards, UseInterceptors, Patch, Put } from '@nestjs/common';
+import { MarqueEnum } from './enums/marque.enum';
+import { GetUser } from 'src/auth/decorator/getUser.decorator';
+import { UserEntity } from 'src/user/entities/user.entity';
+import { AddStockInter } from 'src/shared/interfaces/produit.interface';
  
 @Controller('product')
 export class ProduitController {
-    constructor(private readonly produitService: ProduitService) {}
-
-    @Get('getAll')
+    constructor(private produitService: ProduitService) {}
+  
+    //sellers
+    @Get('seller/item')
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(new RoleInterceptor(RoleType.ADMIN,RoleType.SELLER))
-    async findAll(): Promise<produitEntity[]> {
-      return await this.produitService.findAll();
+    async getItemForSeller(@Query('ref') ref:string){
+      return this.produitService.getItemForSeller(ref)
     }
-   
-
-  @Get('get')
-  async findMe(@Body('reference') reference: string , @Body('marque') marque: string): Promise<produitEntity> {
-    return await this.produitService.findOne(reference,marque);
-  }
- 
-  @Put('update')
-  async update(@Body('reference') productReference: string , @Body('marque') marque: string , @Body('productData') productData: UpdateProduitDto) {
-    return await this.produitService.update(productReference,marque,productData);
-  } 
-
- @UsePipes(new ValidationPipe())  
-  @Post('post')
-  async create(@Body('product') productData: CreateProduitDto) {
-  
-    const {reference,marque} = productData;
-    const product = await this.produitService.findOne(reference,marque);
-
-    const errors = {product: ' product is found'};
-    if (product) throw new HttpException({errors}, 401);
-    
-    return await this.produitService.create(productData);
-    
-  } 
-  
-
-  @Delete('delete')
-  async delete(@Body('reference') productReference: string , @Body('marque') marque: string) {
-    return await this.produitService.delete(productReference,marque);
-  }
- 
- 
+    @Post('seller/add')
+    //@UseGuards(JwtAuthGuard)
+    //@UseInterceptors(new RoleInterceptor(RoleType.ADMIN,RoleType.SELLER))
+    async addProd(@GetUser()user :UserEntity,@Body() payload:CreateProduitDto){
+      return this.produitService.addProduct(user,payload)
+    }
+    @Put('seller/addStock')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(new RoleInterceptor(RoleType.SELLER,RoleType.ADMIN))
+    async addToStock(@GetUser() user:UserEntity,@Body() payload:AddStockInter){
+      return this.produitService.addToStock(user,payload)
+    }
+    @Put('seller/stopProd')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(new RoleInterceptor(RoleType.SELLER,RoleType.ADMIN))
+    async stopProd(@GetUser() user:UserEntity,@Body() payload:{id:string}){
+      return this.produitService.stopProd(user,payload.id)
+    }
+    @Get('seller/All')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(new RoleInterceptor(RoleType.ADMIN,RoleType.SELLER))
+    async getAllForSeller(){
+      return this.produitService.getForAdmins()
+    }
+    @Get('seller/All/Grouped')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(new RoleInterceptor(RoleType.ADMIN,RoleType.SELLER))
+    async getAllForSellerByRef(){
+      return this.produitService.allGroupedByRefGuest()
+    }
+    @Get('seller/:id')
+    @UseGuards(JwtAuthGuard)
+    @UseInterceptors(new RoleInterceptor(RoleType.ADMIN,RoleType.SELLER))
+    async getByRefSeller(@Param('id') id:string){
+      return this.produitService.findByIdSeller(id)
+    }
+    //visitor
+    @Get('visitor')
+    async getAllForGuests(){
+      return this.produitService.getForUsers()
+    }
+    @Get('visitor/Grouped')
+    async getAllForUserByRef(){
+      return this.produitService.allGroupedByRefGuest()
+    }
+    @Get('visitor/item')
+    async getItemForUser(@Query('ref') ref:string){
+      return this.produitService.getItemForGuest(ref)
+    }
+    @Get('visitor/item/:id')
+    async getByRefGuest(@Param('id') id:string){
+      return this.produitService.findByIdGuest(id)
+    }
 }

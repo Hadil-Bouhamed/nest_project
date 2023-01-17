@@ -12,6 +12,7 @@ async function bootstrap() {
     forbidUnknownValues:true,
     
   }))
+  app.enableCors();
   await app.listen( parseInt(process.env.APP_PORT) || 5000);
 }
 bootstrap();

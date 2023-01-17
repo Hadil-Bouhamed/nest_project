@@ -8,6 +8,7 @@ import { JwtStrategy } from './strategy/jwt.strategy';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { ConfigService } from '@nestjs/config';
+import { UserService } from 'src/user/user.service';
 
 @Module({
   imports:[
@@ -21,7 +22,7 @@ import { ConfigService } from '@nestjs/config';
       signOptions:{expiresIn:"7200s"}
     }),
   ],
-  providers: [AuthService,JwtStrategy,ConfigService],
+  providers: [AuthService,JwtStrategy],
   controllers: [AuthController]
 })
 export class AuthModule {}

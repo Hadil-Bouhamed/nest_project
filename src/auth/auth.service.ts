@@ -2,8 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
-import * as argon2 from 'argon2'; 
+import * as bcrypt from 'bcrypt'; 
+import * as jwt from 'jsonwebtoken';
 import { CreateUserDto, LoginUserDto } from 'src/user/dto';
+import { UnauthorizedException } from '@nestjs/common/exceptions';
+import { JwtStrategy } from './strategy/jwt.strategy';
 
 @Injectable()
 export class AuthService {
@@ -12,20 +15,21 @@ export class AuthService {
         private jwtService:JwtService
     ){}
     async validateUser(login:LoginUserDto){
-        const user = await this.userService.findByMail(login.email)
+        let user = await this.userService.findByMail(login.email)
         if (user){
-            const isMatch = await argon2.verify(login.password,user.password)
+            let isMatch = await bcrypt.compare(login.password,user.password)
             if(isMatch){
                 delete user.password
-                let token = this.jwtService.sign({
-                    email:user.email,
-                })
-                return {
-                    token
-                }
+                let token = jwt.sign({
+                    "email":user.email,
+                    },process.env.JWT_SECRET,{expiresIn:"7200s"})
+                    return {
+                        token
+                    }
             }
+            throw new UnauthorizedException('Wrong password!')
         }
-        return null;
+        throw new NotFoundException('Email not found') ;
     }
     async register(user:CreateUserDto):Promise<UserEntity>{
         return await this.userService.createUser(user)
