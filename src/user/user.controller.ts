@@ -15,7 +15,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(new RoleInterceptor(RoleType.ADMIN))
   async getAll(){
-    return this.userService.findAll();
+    return (await this.userService.findAll()).map((usr)=>{
+      let tmp = usr['_doc']
+      delete tmp.password
+      return tmp
+    });
   }
 
   @Get('/:id')

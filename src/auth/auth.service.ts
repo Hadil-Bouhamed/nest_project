@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { User as UserEntity } from 'src/shared/types/user';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt'; 
 import * as jwt from 'jsonwebtoken';
@@ -19,9 +19,9 @@ export class AuthService {
         if (user){
             let isMatch = await bcrypt.compare(login.password,user.password)
             if(isMatch){
-                delete user.password
                 let token = jwt.sign({
                     "email":user.email,
+                    "role":user.role
                     },process.env.JWT_SECRET,{expiresIn:"7200s"})
                     return {
                         token
@@ -33,18 +33,5 @@ export class AuthService {
     }
     async register(user:CreateUserDto):Promise<UserEntity>{
         return await this.userService.createUser(user)
-    }
-    async linkUserWithDevice(token:string,user:UserEntity){
-        let userInfo = await this.userService.findOneById(user.id);
-        if(userInfo){
-            let newUserInfo = {
-                ...userInfo,
-                deviceToken:token
-            }
-            await this.userService.internalUpdate(newUserInfo);
-            return token;
-        } else {
-        throw new NotFoundException('SORRY NO USER WITH THIS ID');
-      }
     }
 }
