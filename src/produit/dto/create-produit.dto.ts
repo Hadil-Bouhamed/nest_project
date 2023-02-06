@@ -10,16 +10,15 @@ export class CreateProduitDto {
   reference: string;
 
   @IsNotEmpty()
-  refProduct:string;
+  categorie:string;
+
   @IsNotEmpty()
   @IsEnum(MarqueEnum)
   marque: MarqueEnum;
 
-  @IsNotEmpty()
   @IsEnum(ColorsEnum)
   couleur : ColorsEnum;
 
-  @IsNotEmpty()
   @IsEnum(TailleEnum)
   taille_monture: TailleEnum;
 

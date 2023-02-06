@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { User } from '@ngneat/falso';
 import { CreateUserDto, LoginUserDto } from 'src/user/dto';
-import { UserEntity } from 'src/user/entities/user.entity';
+import { User as UserEntity } from 'src/shared/types/user';
 import { AuthService } from './auth.service';
 import { GetUser } from './decorator/getUser.decorator';
 import { RegisterDto } from './dto/register.dto';
@@ -25,11 +25,5 @@ export class AuthController {
       return user;
     }
     
-    //tnajem tkon zeyed
-    @UseGuards(JwtAuthGuard)
-    @Post('profile/expotoken')
-    PostExpoToken(@GetUser() user: UserEntity, @Body() token) {
-      return this.authService.linkUserWithDevice(token.token, user);
-    }
   }
   

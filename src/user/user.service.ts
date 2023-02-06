@@ -1,58 +1,52 @@
 import { Injectable,NotFoundException,BadRequestException, UnauthorizedException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DeleteResult, UpdateResult } from 'typeorm';
-import { UserEntity } from './entities/user.entity';
+import { User } from 'src/shared/types/user';
 import {CreateUserDto} from './dto';
 const jwt = require('jsonwebtoken');
 import * as bcrypt from 'bcrypt';
 import { HttpException } from '@nestjs/common/exceptions/http.exception';
 import { HttpStatus } from '@nestjs/common';
 import { RoleType } from 'src/shared/enums/roleType.enum';
+import { InjectModel} from '@nestjs/mongoose'
+import { Model } from 'mongoose';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserEntity)
-    private userRepository: Repository<UserEntity>
+    @InjectModel('User')
+    private userRepository: Model<User>
   ) {}
 
-  async findAll(): Promise<UserEntity[]> {
+  async findAll(): Promise<Partial<User>[]> {
     return await (await this.userRepository.find()).map((usr)=>{
-      if(usr.role==RoleType.CLIENT ){
-        delete usr.products
-        delete usr.deletedAt
-        return usr
+      let res = {
+        ...usr
       }
-      delete usr.deletedAt
-      return usr
-    });
+      delete res.password
+      return res
+    })
   }
 
-  async findOneById(id:string): Promise<UserEntity> {
-    let tmp = await this.userRepository.findOne({
-      where : {id},
-    });
-    delete tmp.products
-    delete tmp.deletedAt
+  async findOneById(id:string): Promise<Partial<User>> {
+    let tmp = await this.userRepository.findById(id)
+    let res = {
+      ...tmp['_doc']
+    }
+    delete res.password
+    return res
+  }
+  async findByMail(email:string):Promise<User>{
+    let tmp = await this.userRepository.findOne({email:email});
     return tmp
   }
-  async findByMail(email:string):Promise<UserEntity>{
-    let tmp = await this.userRepository.findOne({
-      where : {email},
-    });
-    delete tmp.products
-    delete tmp.deletedAt
-    return tmp
-  }
-  async createUser(payload: CreateUserDto): Promise<UserEntity> {
+  async createUser(payload: CreateUserDto): Promise<User> {
     let email = payload.email
     let name = payload.username
     if (await this.userRepository.findOne({ 
-      where:{ email }
+     email:email
      })) {
       throw new UnauthorizedException('Email Exists Already!')
     }
     if (await this.userRepository.findOne({ 
-      where:{ username:name }
+      username:name
      })) {
       throw new UnauthorizedException('Username Exists Already!')
     }
@@ -65,7 +59,8 @@ export class UserService {
         password: newPass,
         role:RoleType.CLIENT,
       });
-      return await this.userRepository.save(newUser);
+      await newUser.save();
+      return newUser
   }catch(err){
     throw new HttpException({
       message:'Error_REGISTER'
@@ -73,38 +68,45 @@ export class UserService {
     HttpStatus.INTERNAL_SERVER_ERROR)
   }
   }
-  async internalUpdate(user: UserEntity) {
-    await this.userRepository.save(user);
+
+  async deleteUser(id:string):Promise<any>{
+    let res = await this.userRepository.findByIdAndDelete(id)
+    if(!res){
+      throw new NotFoundException('No User is deleted')
+    }else{
+      return `User ${res.username} is deleted `
+    }
   }
-  async deleteUser(id:string):Promise<DeleteResult>{
-    return this.userRepository.softDelete(id)
-  }
-  async updateToSeller(id:string):Promise<UserEntity>{
-    let tmp = await this.userRepository.findOneBy({id})
+  async updateToSeller(id:string):Promise<User>{
+    let tmp = await this.userRepository.findById(id)
     if(!tmp){
       throw new NotFoundException('Not found client sir')
     }
-    let newUser = await this.userRepository.preload({
-      ...tmp,
+    let newUser ={
+      ...tmp['_doc'],
       role:RoleType.SELLER     
-    })
-    tmp = await this.userRepository.save(newUser)
-    delete tmp.password
-    delete tmp.deletedAt
-    return tmp
+    }
+    await tmp.updateOne(newUser)
+    newUser = {
+      ...tmp['_doc']
+    }
+    delete newUser.password
+    return newUser
   }
   async updateToAdmin(id:string):Promise<any>{
-    let tmp = await this.userRepository.findOneBy({id})
+    let tmp = await this.userRepository.findById(id)
     if(!tmp){
       throw new NotFoundException('Not found client sir')
     }
-    let newUser = await this.userRepository.preload({
-      ...tmp,
+    let newUser ={
+      ...tmp['_doc'],
       role:RoleType.ADMIN     
-    })
-    tmp = await this.userRepository.save(newUser)
-    delete tmp.password
-    delete tmp.deletedAt
-    return tmp
-  }
+    }
+    await tmp.updateOne(newUser)
+    newUser = {
+      ...tmp['_doc']
+    }
+    delete newUser.password
+    return newUser
+}
 }

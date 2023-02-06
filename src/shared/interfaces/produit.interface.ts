@@ -2,6 +2,7 @@ import { ColorsEnum } from "src/produit/enums/colors.enum";
 import { MarqueEnum } from "src/produit/enums/marque.enum";
 import { TailleEnum } from "src/produit/enums/taille.enum";
 import { EtatProd, SupportProd } from "../enums/availability.enum";
+import { User } from "../types/user"
 
 export interface NegotiatePourcentageInter {
   id?:string,
@@ -9,6 +10,7 @@ export interface NegotiatePourcentageInter {
   prix?:number,
   admin_pourcentage?:number
 }
+
 export interface AddStockInter{
   id?:string,
   ref?:string,
@@ -16,16 +18,23 @@ export interface AddStockInter{
   prixReel:number,
 }
 export interface ProductForGuests{
+  _id:string,
   reference : string,
+  categorie:string,
   marque : MarqueEnum,
   couleur : ColorsEnum,
   taille : TailleEnum ,
   prix : number,
   availability ?: EtatProd|string,
-  owner?:string,
+  owner?:{
+    _id:string,
+    username:string
+  },
 }
 export interface ProductForSeller{
+  _id:string,
   reference : string,
+  categorie:string,
   marque : MarqueEnum,
   couleur : ColorsEnum,
   taille : TailleEnum ,
@@ -36,10 +45,11 @@ export interface ProductForSeller{
   taxAdminUnite:number,  
   prix : number,
   prixReel : number,
-  profitUnite:number
+  profitUnite:number,
+  owner: User
 }
 export interface FactureSeller{
-  reference:string,
+  categorie:string,
   sold:number,
   achete:number,
   achatTotal:number,
